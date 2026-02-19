@@ -19,11 +19,11 @@ Create a Kubernetes cluster (Minikube or LKE)
 
 Start a local Kubernetes cluster:
 
-  minikube start
+    minikube start
 
 Verify cluster status:
 
-  kubectl get nodes
+    kubectl get nodes
 
 🔹 EXERCISE 2: Deploy Mysql with 2 replicas
 First of all, you want to deploy the mysql database.
