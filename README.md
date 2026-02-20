@@ -42,6 +42,120 @@ NOTE: Bitnami have recently changed their repository structure and have moved th
       tag: latest
       repository: bitnamilegacy/mysql 
   
+To clone repository locally:
+
+    git clone https://github.com/jdavydova/kubernetes-exercises.git
+
+    git checkout feature/solutions
+
+    cd k8s-deployment
+
+Mysql Chart link:
+https://github.com/bitnami/charts/tree/master/bitnami/mysql
+
+Minikube:
+
+    helm repo add bitnami https://charts.bitnami.com/bitnami
+    helm install my-release -f mysql-chart-values-minikube.yaml
+
+    helm install my-release bitnami/mysql -f mysql-chart-values-minikube.yaml
+
+🧠 What This Command Does:
+
+    helm install
+Tells Helm to install an application into Kubernetes.
+
+    my-release
+This is the release name.
+It’s the name Helm gives to this installation.
+You could name it:
+mysql
+prod-db
+database
+anything
+
+Helm tracks installations by release name.
+
+    bitnami/mysql
+This is the chart.
+It means:
+"Download the mysql chart from the bitnami repository and install it."
+
+### Notice about terminology:
+🔹 What is a Chart in Helm?
+
+A Helm chart is a package of Kubernetes templates.
+Think of it like:
+
+📦 A blueprint for installing an application in Kubernetes.
+🧠 Simple Definition
+A chart contains:
+Deployment / StatefulSet templates
+Services
+ConfigMaps
+Secrets
+PersistentVolumeClaims
+Default configuration (values.yaml)
+All packaged together.
+
+🔹 What is a “Blueprint”?
+A blueprint is a detailed plan or design that tells you how to build something.
+In construction:
+Blueprint = architectural drawing of a house
+It shows where walls, doors, electricity, plumbing go
+Builders follow the blueprint to build the house
+
+🔹 In Kubernetes Context
+A Helm chart is like that blueprint.
+It contains instructions that say:
+Create a Deployment
+Create a Service
+Create a Secret
+Create a Persistent Volume
+Set replicas to 2
+Use this Docker image
+Use these environment variables
+So instead of manually writing 5–10 YAML files…
+You use a chart, and Helm builds everything automatically
+
+LKE (stands for Linode Kubernetes Engine):
+
+    helm repo add bitnami https://charts.bitnami.com/bitnami
+    helm install my-release -f mysql-chart-values-lke.yaml
+
+NOTICE:
+
+🔹 What is LKE?
+
+LKE (Linode Kubernetes Engine) is a managed Kubernetes service provided by Linode (Akamai Cloud).
+
+In simple words:
+
+LKE is a Kubernetes cluster running in the cloud instead of on your laptop.
+
+🔹 How is LKE different from Minikube?
+Minikube	LKE
+Runs locally	Runs in the cloud
+Single node	Multiple nodes
+For learning	For production
+Runs on your computer	Runs on Linode servers
+🔹 What does “managed Kubernetes” mean?
+
+With LKE:
+Linode manages:
+The Control Plane (API server, scheduler)
+etcd
+Cluster availability
+Kubernetes upgrades
+You manage:
+Pods
+Deployment
+Services
+Ingress
+ConfigMaps / Secrets
+Application scaling
+
+
 🔹EXERCISE 3: Deploy your Java Application with 2 replicas
 Now you want to:
 
