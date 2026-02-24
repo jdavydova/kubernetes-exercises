@@ -169,7 +169,7 @@ Before this exercises I build and push image to docker hub with command:
     -t juliadavydova/my-app:1.0.1 \
     --push .
 
-![img.png](img.png)
+<img width="697" height="756" alt="Screenshot 2026-02-24 at 10 41 02 AM" src="https://github.com/user-attachments/assets/0aea373c-f0c1-43fe-a0a2-15ac0c4a6ad6" />
 
 Create ConfigMap and Secret with the correct values and reference them in the application deployment config file.
 
