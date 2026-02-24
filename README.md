@@ -163,8 +163,34 @@ Deploy the Java application with 2 replicas - note: once you have pushed your im
 
 With docker-compose, you were setting env_vars on the server. In K8s there are separate components for that, so you want to:
 
+Before this exercises I build and push image to docker hub with command:
+
+    docker buildx build --platform linux/amd64 \
+    -t juliadavydova/my-app:1.0.1 \
+    --push .
+
+![img.png](img.png)
 
 Create ConfigMap and Secret with the correct values and reference them in the application deployment config file.
+
+# Create my-registry-key secret to pull image
+DOCKER_REGISTRY_SERVER=docker.io
+DOCKER_USER=your dockerID, same as for `docker login`
+DOCKER_EMAIL=your dockerhub email, same as for `docker login`
+DOCKER_PASSWORD=your dockerhub pwd, same as for `docker login`
+
+kubectl create secret docker-registry my-registry-key \
+--docker-server=$DOCKER_REGISTRY_SERVER \
+--docker-username=$DOCKER_USER \
+--docker-password=$DOCKER_PASSWORD \
+--docker-email=$DOCKER_EMAIL
+
+
+# Again from k8s-deployment folder, execute following commands - ensuring you have added your docker image details to line 22 of java-app.yaml
+kubectl apply -f db-secret.yaml
+kubectl apply -f db-config.yaml
+kubectl apply -f java-app.yaml
+
 
 
 🔹 EXERCISE 4: Deploy phpmyadmin

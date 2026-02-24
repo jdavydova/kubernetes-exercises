@@ -5,7 +5,7 @@ metadata:
   labels:
     app: java-app
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: java-app
@@ -18,7 +18,7 @@ spec:
       - name: my-registry-key
       containers:
       - name: javamysqlapp
-        image: {repo-name}/demo-app:{image-tag}
+        image: juliadavydova/my-app:1.0.1
         ports:
         - containerPort: 8080
         env:
