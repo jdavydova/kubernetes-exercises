@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: apps-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: my-java-app.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: java-app-service
+                port:
+                  number: 8080
+    - host: my-phpmyadmin.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: phpmyadmin-service
+                port:
+                  number: 80

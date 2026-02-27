@@ -58,6 +58,7 @@ Minikube:
     helm repo add bitnami https://charts.bitnami.com/bitnami
     helm install my-release -f mysql-chart-values-minikube.yaml
 
+
     helm install my-release bitnami/mysql -f mysql-chart-values-minikube.yaml
 
 🧠 What This Command Does:
@@ -155,7 +156,6 @@ Ingress
 ConfigMaps / Secrets
 Application scaling
 
-
 🔹EXERCISE 3: Deploy your Java Application with 2 replicas
 Now you want to:
 
@@ -169,28 +169,39 @@ Before this exercises I build and push image to docker hub with command:
     -t juliadavydova/my-app:1.0.1 \
     --push .
 
+Changed java-app.yaml
+Added docker image details:
+    
+    image: juliadavydova/my-app:1.0.1
+
+Create my-registry-key secret to pull image
+
+    kubectl create secret docker-registry my-registry-key \               
+    --docker-server=docker.io \
+    --docker-username=juliadavydova \
+    --docker-password=xxxxxxxxxxxxx \
+    --docker-email=juliada888@gmail.com
+
+
+
+
+    cd k8s-deployment
+    
+    kubectl apply -f db-config.yaml    
+    kubectl apply -f java-app.yaml
+    kubectl apply -f db-secret.yaml  
+
+    kubectl rollout restart deployment java-app-deployment  
+    kubectl get pods -l app=java-app -w
+
+Useful commands
+
+    kubectl get pods -l app=java-app -w
+    kubectl describe secret db-secret
+    kubectl describe deploy mysql    
+    kubectl get all
+
 <img width="697" height="756" alt="Screenshot 2026-02-24 at 10 41 02 AM" src="https://github.com/user-attachments/assets/0aea373c-f0c1-43fe-a0a2-15ac0c4a6ad6" />
-
-Create ConfigMap and Secret with the correct values and reference them in the application deployment config file.
-
-# Create my-registry-key secret to pull image
-DOCKER_REGISTRY_SERVER=docker.io
-DOCKER_USER=your dockerID, same as for `docker login`
-DOCKER_EMAIL=your dockerhub email, same as for `docker login`
-DOCKER_PASSWORD=your dockerhub pwd, same as for `docker login`
-
-kubectl create secret docker-registry my-registry-key \
---docker-server=$DOCKER_REGISTRY_SERVER \
---docker-username=$DOCKER_USER \
---docker-password=$DOCKER_PASSWORD \
---docker-email=$DOCKER_EMAIL
-
-
-# Again from k8s-deployment folder, execute following commands - ensuring you have added your docker image details to line 22 of java-app.yaml
-kubectl apply -f db-secret.yaml
-kubectl apply -f db-config.yaml
-kubectl apply -f java-app.yaml
-
 
 
 🔹 EXERCISE 4: Deploy phpmyadmin
@@ -203,15 +214,52 @@ For this deployment you just need 1 replica, since this is only for your own use
 
 Now your application setup is running in the cluster, but you still need a proper way to access the application. Also, you don't want users to access the application using the IP address but instead to use a domain name. For that, you want to install Ingress controller in the cluster and configure ingress access for your application.
 
+Apply:
+
+     kubectl apply -f phpmyadmin.yaml
 
 🔹 EXERCISE 5: Deploy Ingress Controller
 Deploy Ingress Controller in the cluster - using Helm
 
+ingress controller for minikube :
+
+    minikube addons enable ingress
+    minikube ip
+
+LKE:
+
+    helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+    helm repo update
+    helm install ingress-nginx ingress-nginx/ingress-nginx
+
+Notes on installing Ingress-controller on LKE
+    https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx
 
 🔹 EXERCISE 6: Create Ingress rule
 Create an Ingress rule for your application’s access.
 If you are using Minikube, the application must be accessible on my-java-app.com
 For LKE, use the Linode node-balancer address - line 48 of the Index.html file for the application must be updated to include the address
+
+### Minikube
+
+    set the host name in java-app-ingress.yaml line 7 to my-java-app.com
+    add 127.0.0.1 my-java-app.com in /etc/hosts file
+    create ingress component: kubectl apply -f java-app-ingress.yaml
+
+Run:
+
+     minikube tunnel 
+
+Access application from browser on address: my-java-app.com
+
+
+LKE
+
+    set the HOST variable found at line 48 of the index.html to the Linode node-balancer address (you may need to rebuild your container image after this step)
+    set the host name in java-app-ingress.yaml line 7 to Linode node-balancer address
+    create ingress component: kubectl apply -f java-app-ingress.yaml
+
+    access application from browser on Linode node-balancer address
 
 🔹 EXERCISE 7: Port-forward for phpmyadmin
 However, you don't want to expose phpmyadmin for security reasons. So you configure port-forwarding for the service to access on localhost, whenever you need it.
@@ -220,6 +268,10 @@ Configure port-forwarding for phpmyadmin
 
 As the final step, you decide to create a helm chart for your Java application where all the configuration files are configurable. You can then tell developers how they can use it by setting all the chart values. This chart will be hosted in its own git repository.
 
+Port-forward for phpmyadmin
+Minikube & LKE:
+    
+    kubectl port-forward svc/phpmyadmin-service 8081:8081
 
 🔹 EXERCISE 8: Create Helm Chart for Java App
 
@@ -228,4 +280,29 @@ Create custom values file as an example for developers to use when deploying the
 Deploy the java application using the chart with helmfile
 Host the chart in its own git repository
 
+#### Steps
 
+    create helm chart boilerplate for your application with chart-name java-app using command: helm create java-app
+
+
+##### Note: This will generate java-app folder with chart files
+
+    clean up all unneeded contents from java-app folder, as you learned in the module
+    create template files for db-config.yaml, db-secret.yaml, java-app-deployment.yaml, java-app-ingress.yaml, java-app-service.yaml
+
+    create values-override.yaml and set all the correct values there
+    set default chart values in values.yaml file
+
+❗ Check the final version of chart files in java-app folder in this feature/solutions branch
+
+Note: the ingress.hostName must be set to my-java-app.com for Minikube & Linode node balancer address
+
+    validate that your chart is correct and debug any issues, do a dry-run
+
+helm install my-cool-java-app java-app -f java-app/values-override.yaml --dry-run --debug
+
+    if dry-run shows the k8s manifest files with correct values, everything is working, so you can create the chart release
+
+helm install my-cool-java-app java-app -f java-app/values-override.yaml
+
+    extract the chart java-app folder and host into its own new git repository java-app-chart
